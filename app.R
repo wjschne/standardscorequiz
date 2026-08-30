@@ -8,8 +8,7 @@
 #
 library(bslib)
 library(shiny)
-library(tibble)
-d <- tibble(
+d <- data.frame(
   Metric = c("Scaled Score", "T-Score", "Standard Score"),
   Mean = c(10, 50, 100),
   SD = c(3, 10, 15)
