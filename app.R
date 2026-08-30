@@ -8,6 +8,10 @@
 #
 library(bslib)
 library(shiny)
+library(brand.yml)
+# Needed so shinylive/webR installs it: bslib only Suggests brand.yml,
+# but bs_theme(brand = TRUE) requires it.
+library(brand.yml)
 d <- data.frame(
   Metric = c("Scaled Score", "T-Score", "Standard Score"),
   Mean = c(10, 50, 100),
