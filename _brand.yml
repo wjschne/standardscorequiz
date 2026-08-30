@@ -1,0 +1,36 @@
+meta:
+  name: brand.yml
+  link: https://posit-dev.github.io/brand-yml
+
+logo:
+  small: brand-yml-icon.svg
+  medium: brand-yml-tall.svg
+  large: brand-yml-wide.svg
+
+color:
+  palette:
+    blue: "#1f6187"
+    pink: "#871f61"
+    lightblue: "#D4E0E8"
+    striped: "#11111122"
+  primary: blue
+  secondary: lightblue
+  danger: pink
+  info: lightblue
+  light: "#F1F1F1"
+  dark: "#404041"
+
+typography:
+  base:
+    family: Roboto Condensed
+    line-height: 1.25
+    size: 20px
+  headings:
+    family: Roboto
+    color: primary
+    weight: 600
+
+defaults:
+  bootstrap:
+    tooltip-bg: "#ddd"
+    tooltip-border-radius: 4px

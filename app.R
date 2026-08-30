@@ -17,22 +17,44 @@ d <- tibble(
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
+  theme = bs_theme(
+    brand = TRUE,
+    bootswatch = "minty",
+    version = 5,
+    `tooltip-bg` = "var(--bs-primary)",
+    `tooltip-color` = "var(--bs-light)",
+    `tooltip-opacity` = 1,
+    `tooltip-border-radius` = "6px",
+    `tooltip-padding-y` = "10px",
+    `tooltip-padding-x` = "12px"
+  ),
   # Application title
   titlePanel("Standard Score Quiz"),
-
-  # Sidebar with a slider input for number of bins
-  sidebarLayout(
-    sidebarPanel(
-      shiny::actionButton("btn_restart", label = "Restart"),
-      shiny::checkboxInput("Answers", "Reveal Answers", value = FALSE)
+  mainPanel(
+    fluidRow(
+      style = "display: flex; align-items: center;",
+      column(
+        width = 2,
+        shiny::actionButton(
+          "btn_restart",
+          label = "Restart",
+          style = "margin: 0; color: #2c3e50;"
+        )
+      ),
+      column(
+        width = 4,
+        shiny::checkboxInput(
+          "Answers",
+          "Reveal Answers",
+          value = FALSE
+        )
+      )
     ),
-
-    # Show a plot of the generated distribution
-    mainPanel(
-      shiny::uiOutput("quiz")
-    )
+    hr(),
+    shiny::uiOutput("quiz")
   )
 )
+
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
@@ -47,9 +69,16 @@ server <- function(input, output) {
 
     list(
       fluidRow(
-        column(width = 4, h4("Question")),
-        column(width = 2, h4("Your Answer")),
-        column(width = 2, h4("Correct Answer"))
+        column(
+          width = 5,
+          strong("Question"),
+          style = "margin-top: 10px; text-align: left;"
+        ),
+        column(
+          width = 2,
+          strong("Correct Answer"),
+          style = "margin-top: 10px; text-align: center;"
+        )
       ),
       lapply(1:5, function(i) {
         dd <- d[sample(1:3, 2), ]
@@ -61,7 +90,7 @@ server <- function(input, output) {
 
         fluidRow(
           column(
-            width = 4,
+            width = 5,
             p(
               paste0(
                 i,
@@ -76,18 +105,10 @@ server <- function(input, output) {
               style = "margin-top: 10px; text-align: left;"
             )
           ),
-          column(
-            width = 2,
-            textInput(
-              inputId = paste0("q_", i),
-              label = NULL,
-              value = ""
-            )
-          ),
           if (input$Answers) {
             column(
               width = 2,
-              p(m2, style = "margin-top: 10px; text-align: left;")
+              p(m2, style = "margin-top: 10px; text-align: center;")
             )
           }
         )
