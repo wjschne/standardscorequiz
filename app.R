@@ -19,7 +19,7 @@ d <- data.frame(
 )
 
 # Define UI for application that draws a histogram
-ui <- fluidPage(
+ui <- page_fixed(
   withMathJax(),
   theme = bs_theme(
     brand = TRUE,
@@ -34,7 +34,7 @@ ui <- fluidPage(
   ),
   # Application title
   titlePanel("Standard Score Conversion Practice"),
-  mainPanel(
+  card(
     fluidRow(
       style = "display: flex; align-items: center;",
       column(
@@ -54,16 +54,16 @@ ui <- fluidPage(
         )
       )
     ),
-    hr(),
+    # hr(),
     shiny::uiOutput("quiz"),
     hr(),
     p(
       em("Note", .noWS = "after"),
       ": All answers are rounded to the nearest integer."
-    ),
-    uiOutput("metrics"),
-    uiOutput("equation")
-  )
+    )
+  ),
+  uiOutput("metrics"),
+  uiOutput("equation")
 )
 
 
@@ -77,8 +77,17 @@ server <- function(input, output) {
 
   output$equation <- renderUI({
     if (input$Answers) {
-      list(
-        hr(),
+      card(
+        h4("Calculation Steps"),
+        tags$ol(
+          tags$li("Start with Old Score."),
+          tags$li("Subtract Old Mean."),
+          tags$li("Divide by Old SD."),
+          tags$li("Multiply by New SD."),
+          tags$li("Add New Mean."),
+          tags$li("If Needed, Round to Nearest Integer.")
+        ),
+        h4("All Steps in One Equation"),
         withMathJax(
           "\\(\\text{New Score} = \\frac{\\text{Old Score}-\\text{Old Mean}}{\\text{Old SD}}\\times \\text{New SD}+\\text{New Mean}\\)"
         )
@@ -90,7 +99,7 @@ server <- function(input, output) {
 
   output$metrics <- renderUI({
     if (input$Answers) {
-      list(hr(), renderTable(d))
+      card(renderTable(d))
     } else {
       NULL
     }
