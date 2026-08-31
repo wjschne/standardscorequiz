@@ -32,7 +32,7 @@ ui <- fluidPage(
     `tooltip-padding-x` = "12px"
   ),
   # Application title
-  titlePanel("Standard Score Quiz"),
+  titlePanel("Standard Score Conversion Practice"),
   mainPanel(
     fluidRow(
       style = "display: flex; align-items: center;",
@@ -40,7 +40,7 @@ ui <- fluidPage(
         width = 2,
         shiny::actionButton(
           "btn_restart",
-          label = "Restart",
+          label = "New Quiz",
           style = "margin: 0; color: #2c3e50;"
         )
       ),
@@ -54,7 +54,11 @@ ui <- fluidPage(
       )
     ),
     hr(),
-    shiny::uiOutput("quiz")
+    shiny::uiOutput("quiz"),
+    p(
+      em("Note", .noWS = "after"),
+      ": All answers are rounded to the nearest integer."
+    )
   )
 )
 
