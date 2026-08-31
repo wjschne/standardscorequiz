@@ -14,12 +14,13 @@ library(brand.yml)
 library(brand.yml)
 d <- data.frame(
   Metric = c("Scaled Score", "T-Score", "Standard Score"),
-  Mean = c(10, 50, 100),
-  SD = c(3, 10, 15)
+  Mean = c(10L, 50L, 100L),
+  SD = c(3L, 10L, 15L)
 )
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
+  withMathJax(),
   theme = bs_theme(
     brand = TRUE,
     bootswatch = "minty",
@@ -55,10 +56,13 @@ ui <- fluidPage(
     ),
     hr(),
     shiny::uiOutput("quiz"),
+    hr(),
     p(
       em("Note", .noWS = "after"),
       ": All answers are rounded to the nearest integer."
-    )
+    ),
+    uiOutput("metrics"),
+    uiOutput("equation")
   )
 )
 
@@ -69,6 +73,27 @@ server <- function(input, output) {
   ss(sample(1:1000000, 1))
   observeEvent(input$btn_restart, {
     ss(sample(1:1000000, 1))
+  })
+
+  output$equation <- renderUI({
+    if (input$Answers) {
+      list(
+        hr(),
+        withMathJax(
+          "\\(\\text{New Score} = \\frac{\\text{Old Score}-\\text{Old Mean}}{\\text{Old SD}}\\times \\text{New SD}+\\text{New Mean}\\)"
+        )
+      )
+    } else {
+      NULL
+    }
+  })
+
+  output$metrics <- renderUI({
+    if (input$Answers) {
+      list(hr(), renderTable(d))
+    } else {
+      NULL
+    }
   })
 
   output$quiz <- renderUI({
@@ -82,9 +107,9 @@ server <- function(input, output) {
           style = "margin-top: 10px; text-align: left;"
         ),
         column(
-          width = 2,
+          width = 4,
           strong("Correct Answer"),
-          style = "margin-top: 10px; text-align: center;"
+          style = "margin-top: 10px; text-align: left;"
         )
       ),
       lapply(1:5, function(i) {
@@ -114,8 +139,24 @@ server <- function(input, output) {
           ),
           if (input$Answers) {
             column(
-              width = 2,
-              p(m2, style = "margin-top: 10px; text-align: center;")
+              width = 4,
+              p(
+                span(
+                  paste0(m2, " = ("),
+                  paste0(" (", m1, " "),
+                  HTML("&minus;"),
+                  paste0(
+                    dd[1, "Mean"],
+                    ") / ",
+                    dd[1, "SD"],
+                    ") "
+                  ),
+                  HTML("&times;"),
+                  paste(" ", dd[2, "SD"], " + ", dd[2, "Mean"]),
+                  .noWS = "outside"
+                ),
+                style = "margin-top: 10px; text-align: left;"
+              )
             )
           }
         )
