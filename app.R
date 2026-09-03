@@ -101,7 +101,8 @@ ui <- page_fixed(
     )
   ),
   uiOutput("metrics"),
-  uiOutput("equation")
+  uiOutput("equation"),
+  uiOutput("prtable")
 )
 
 
@@ -111,6 +112,21 @@ server <- function(input, output) {
   ss(sample(1:1000000, 1))
   observeEvent(input$btn_restart, {
     ss(sample(1:1000000, 1))
+  })
+  
+  output$prtable <- renderUI({
+    if (input$Answers) {
+      card(
+        h4("Scaled Scores and Percentile Ranks"),
+        div(
+        renderTable(align = "cc",
+          data.frame(`Scaled Score` = 1:19,
+                     `Percentile Rank` = proportion2percentile(pnorm(1:19, 10, 3))) |> `colnames<-`(c("Scaled Score", "Percentile Rank"))
+        ))
+        
+        
+      )
+    }
   })
 
   output$equation <- renderUI({
