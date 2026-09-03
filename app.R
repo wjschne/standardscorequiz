@@ -9,17 +9,34 @@
 library(bslib)
 library(shiny)
 library(brand.yml)
-proportion_round <- function (p, digits = 2) {
+proportion_round <- function(p, digits = 2) {
   p1 <- round(p, digits)
   lower_limit <- 0.95 * 10^(-1 * digits)
   upper_limit <- 1 - lower_limit
-  p1[p > upper_limit & p <= 1] <- 1 - signif(1 - p[p > upper_limit & 
-                                                     p <= 1], digits - 1)
-  p1[p < lower_limit & p >= 0] <- signif(p[p < lower_limit & 
-                                             p >= 0], digits - 1)
+  p1[p > upper_limit & p <= 1] <- 1 -
+    signif(
+      1 -
+        p[
+          p > upper_limit &
+            p <= 1
+        ],
+      digits - 1
+    )
+  p1[p < lower_limit & p >= 0] <- signif(
+    p[
+      p < lower_limit &
+        p >= 0
+    ],
+    digits - 1
+  )
   p1
 }
-proportion2percentile <- function(p, digits = 2, remove_leading_zero = TRUE, add_percent_character = FALSE) {
+proportion2percentile <- function(
+  p,
+  digits = 2,
+  remove_leading_zero = TRUE,
+  add_percent_character = FALSE
+) {
   p1 <- as.character(100 * proportion_round(p, digits = digits))
   if (remove_leading_zero) {
     p1 <- stringr::str_remove(p1, "^0")
@@ -28,7 +45,7 @@ proportion2percentile <- function(p, digits = 2, remove_leading_zero = TRUE, add
     p1 <- paste0(p1, "%")
   }
   stringr::str_remove_all(p1, " ")
-} 
+}
 
 # Needed so shinylive/webR installs it: bslib only Suggests brand.yml,
 # but bs_theme(brand = TRUE) requires it.
@@ -128,6 +145,8 @@ server <- function(input, output) {
 
   output$quiz <- renderUI({
     set.seed(ss())
+    ss <- sample(1:19, 19)
+    pr <- proportion2percentile(pnorm(ss, 10, 3))
 
     list(
       fluidRow(
@@ -150,7 +169,7 @@ server <- function(input, output) {
           m2 <- round(
             dd[2, "SD"] * (m1 - dd[1, "Mean"]) / dd[1, "SD"] + dd[2, "Mean"]
           )
-          
+
           fluidRow(
             column(
               width = 5,
@@ -192,10 +211,6 @@ server <- function(input, output) {
             }
           )
         } else {
-          
-          ss <- sample(1:19, 1)
-          pr <- proportion2percentile(pnorm(ss, 10, 3))
-          
           fluidRow(
             column(
               width = 5,
@@ -203,7 +218,7 @@ server <- function(input, output) {
                 paste0(
                   i,
                   ". What is the percentile rank of a scaled score of ",
-                  ss,
+                  ss[i],
                   "?"
                 ),
                 style = "margin-top: 10px; text-align: left;"
@@ -212,15 +227,11 @@ server <- function(input, output) {
             if (input$Answers) {
               column(
                 width = 4,
-                p(pr,
-                  style = "margin-top: 10px; text-align: left;"
-                )
+                p(pr[i], style = "margin-top: 10px; text-align: left;")
               )
             }
           )
-          
         }
- 
       })
     )
   })
