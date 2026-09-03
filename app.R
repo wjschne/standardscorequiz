@@ -9,6 +9,27 @@
 library(bslib)
 library(shiny)
 library(brand.yml)
+proportion_round <- function (p, digits = 2) {
+  p1 <- round(p, digits)
+  lower_limit <- 0.95 * 10^(-1 * digits)
+  upper_limit <- 1 - lower_limit
+  p1[p > upper_limit & p <= 1] <- 1 - signif(1 - p[p > upper_limit & 
+                                                     p <= 1], digits - 1)
+  p1[p < lower_limit & p >= 0] <- signif(p[p < lower_limit & 
+                                             p >= 0], digits - 1)
+  p1
+}
+proportion2percentile <- function(p, digits = 2, remove_leading_zero = TRUE, add_percent_character = FALSE) {
+  p1 <- as.character(100 * proportion_round(p, digits = digits))
+  if (remove_leading_zero) {
+    p1 <- stringr::str_remove(p1, "^0")
+  }
+  if (add_percent_character) {
+    p1 <- paste0(p1, "%")
+  }
+  stringr::str_remove_all(p1, " ")
+} 
+
 # Needed so shinylive/webR installs it: bslib only Suggests brand.yml,
 # but bs_theme(brand = TRUE) requires it.
 library(brand.yml)
@@ -59,7 +80,7 @@ ui <- page_fixed(
     hr(),
     p(
       em("Note", .noWS = "after"),
-      ": All answers are rounded to the nearest integer."
+      ": All scale conversion answers are rounded to the nearest integer."
     )
   ),
   uiOutput("metrics"),
@@ -121,54 +142,85 @@ server <- function(input, output) {
           style = "margin-top: 10px; text-align: left;"
         )
       ),
-      lapply(1:5, function(i) {
-        dd <- d[sample(1:3, 2), ]
-        z <- rnorm(1)
-        m1 <- as.integer(z * dd[1, "SD"] + dd[1, "Mean"])
-        m2 <- as.integer(
-          dd[2, "SD"] * (m1 - dd[1, "Mean"]) / dd[1, "SD"] + dd[2, "Mean"]
-        )
-
-        fluidRow(
-          column(
-            width = 5,
-            p(
-              paste0(
-                i,
-                ". Convert a ",
-                dd[1, "Metric"],
-                " of ",
-                m1,
-                " to a ",
-                dd[2, "Metric"],
-                "."
-              ),
-              style = "margin-top: 10px; text-align: left;"
-            )
-          ),
-          if (input$Answers) {
+      lapply(1:6, function(i) {
+        if (i < 3) {
+          dd <- d[sample(1:3, 2), ]
+          z <- rnorm(1)
+          m1 <- round(z * dd[1, "SD"] + dd[1, "Mean"])
+          m2 <- round(
+            dd[2, "SD"] * (m1 - dd[1, "Mean"]) / dd[1, "SD"] + dd[2, "Mean"]
+          )
+          
+          fluidRow(
             column(
-              width = 4,
+              width = 5,
               p(
-                span(
-                  paste0(m2, " = ("),
-                  paste0(" (", m1, " "),
-                  HTML("&minus;"),
-                  paste0(
-                    dd[1, "Mean"],
-                    ") / ",
-                    dd[1, "SD"],
-                    ") "
-                  ),
-                  HTML("&times;"),
-                  paste(" ", dd[2, "SD"], " + ", dd[2, "Mean"]),
-                  .noWS = "outside"
+                paste0(
+                  i,
+                  ". Convert a ",
+                  dd[1, "Metric"],
+                  " of ",
+                  m1,
+                  " to a ",
+                  dd[2, "Metric"],
+                  "."
                 ),
                 style = "margin-top: 10px; text-align: left;"
               )
-            )
-          }
-        )
+            ),
+            if (input$Answers) {
+              column(
+                width = 4,
+                p(
+                  span(
+                    paste0(m2, " = ("),
+                    paste0(" (", m1, " "),
+                    HTML("&minus;"),
+                    paste0(
+                      dd[1, "Mean"],
+                      ") / ",
+                      dd[1, "SD"],
+                      ") "
+                    ),
+                    HTML("&times;"),
+                    paste(" ", dd[2, "SD"], " + ", dd[2, "Mean"]),
+                    .noWS = "outside"
+                  ),
+                  style = "margin-top: 10px; text-align: left;"
+                )
+              )
+            }
+          )
+        } else {
+          
+          ss <- sample(1:19, 1)
+          pr <- proportion2percentile(pnorm(ss, 10, 3))
+          
+          fluidRow(
+            column(
+              width = 5,
+              p(
+                paste0(
+                  i,
+                  ". What is the percentile rank of a scaled score of ",
+                  ss,
+                  "?"
+                ),
+                style = "margin-top: 10px; text-align: left;"
+              )
+            ),
+            if (input$Answers) {
+              column(
+                width = 4,
+                p(pr,
+                  style = "margin-top: 10px; text-align: left;"
+                )
+              )
+            }
+          )
+          
+        }
+ 
       })
     )
   })
